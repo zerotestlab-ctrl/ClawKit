@@ -38,13 +38,15 @@ artifacts-monorepo/
 ## Features
 
 ### Public Landing Page (/)
-- Hero: "One upload. Invoked everywhere."
-- Email waitlist capture (POST /api/waitlist)
-- Works with MCP, CLI, or API – no lock-in
-- Beautiful footer: "Built for the 2026 agent economy"
-- Top nav with ClawKit ⚡ logo
-- Mobile: hamburger nav with framer-motion dropdown, stacked email/CTA form
-- Desktop: inline nav links + pill email input with embedded button
+- Custom ClawKitLogo SVG component (claw icon + gradient "Claw"/"Kit" text, unique SVG IDs via useId)
+- Sticky nav: logo left, Pricing/Sign In/Get Started right (hamburger on mobile)
+- Hero: centered logo, headline "One upload. Invoked everywhere.", blue neon subheadline, email waitlist + "Get Started Free" CTA
+- Trust bar: MCP, CLI, REST API, Moltbook & OpenClaw, No lock-in
+- How It Works: 4 step cards (Upload, MCP Kit, Simulate, Export)
+- Value Proposition: 3 columns — market flood, invisibility problem, ClawKit edge
+- Features Grid: 2x2 — Safety Auditor, Cross-platform, Analytics, Export Forever
+- Bottom CTA: "Ready to be discovered?" + email waitlist
+- Fully responsive mobile-first with framer-motion scroll animations
 
 ### Dashboard (/dashboard) — Requires auth
 - Sidebar: Home, Products, Distribution, Pricing, Settings
