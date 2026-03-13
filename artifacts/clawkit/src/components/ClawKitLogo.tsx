@@ -17,7 +17,7 @@ export function ClawKitLogo({ size = "md", showText = true, className = "" }: Cl
   const s = sizes[size];
   const uid = useId();
   const gradId = `clawGrad-${uid}`;
-  const filterId = `clawGlow-${uid}`;
+  const glowId = `clawGlow-${uid}`;
 
   return (
     <div className={`flex items-center ${s.gap} ${className}`} aria-label="ClawKit" role="img">
@@ -33,10 +33,11 @@ export function ClawKitLogo({ size = "md", showText = true, className = "" }: Cl
         <defs>
           <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#00C3FF" />
+            <stop offset="50%" stopColor="#00D4FF" />
             <stop offset="100%" stopColor="#0090CC" />
           </linearGradient>
-          <filter id={filterId}>
-            <feGaussianBlur stdDeviation="2" result="blur" />
+          <filter id={glowId}>
+            <feGaussianBlur stdDeviation="3" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
@@ -44,16 +45,20 @@ export function ClawKitLogo({ size = "md", showText = true, className = "" }: Cl
           </filter>
         </defs>
 
-        <rect x="2" y="2" width="60" height="60" rx="14" fill="rgba(0,195,255,0.08)" stroke="rgba(0,195,255,0.25)" strokeWidth="1.5" />
+        {/* Toolkit/box outline */}
+        <rect x="4" y="4" width="56" height="56" rx="12" fill="rgba(0,0,0,0.3)" stroke="rgba(0,195,255,0.2)" strokeWidth="1.5" />
+        <rect x="8" y="8" width="48" height="48" rx="10" fill="none" stroke="rgba(0,195,255,0.12)" strokeWidth="1" strokeDasharray="2 2" />
 
-        <g filter={`url(#${filterId})`}>
-          <path d="M20 18C20 18 16 28 16 34C16 38 18 40 20 40" stroke={`url(#${gradId})`} strokeWidth="3" strokeLinecap="round" fill="none" />
-          <path d="M28 14C28 14 26 26 26 34C26 38 28 42 30 42" stroke={`url(#${gradId})`} strokeWidth="3" strokeLinecap="round" fill="none" />
-          <path d="M36 14C36 14 38 26 38 34C38 38 36 42 34 42" stroke={`url(#${gradId})`} strokeWidth="3" strokeLinecap="round" fill="none" />
-          <path d="M44 18C44 18 48 28 48 34C48 38 46 40 44 40" stroke={`url(#${gradId})`} strokeWidth="3" strokeLinecap="round" fill="none" />
+        {/* Robotic/eagle claw with blue neon glow */}
+        <g filter={`url(#${glowId})`}>
+          <path d="M18 22 C18 22 14 32 14 38 C14 42 16 44 18 44" stroke={`url(#${gradId})`} strokeWidth="3" strokeLinecap="round" fill="none" />
+          <path d="M26 18 C26 18 24 30 24 38 C24 42 26 46 28 46" stroke={`url(#${gradId})`} strokeWidth="3" strokeLinecap="round" fill="none" />
+          <path d="M38 18 C38 18 40 30 40 38 C40 42 38 46 36 46" stroke={`url(#${gradId})`} strokeWidth="3" strokeLinecap="round" fill="none" />
+          <path d="M46 22 C46 22 50 32 50 38 C50 42 48 44 46 44" stroke={`url(#${gradId})`} strokeWidth="3" strokeLinecap="round" fill="none" />
         </g>
 
-        <rect x="22" y="44" width="20" height="6" rx="3" fill={`url(#${gradId})`} opacity="0.5" />
+        {/* Base/toolkit floor */}
+        <rect x="24" y="48" width="16" height="4" rx="2" fill={`url(#${gradId})`} opacity="0.6" />
       </svg>
       {showText && (
         <span className={`font-display font-bold ${s.text} tracking-tight`}>

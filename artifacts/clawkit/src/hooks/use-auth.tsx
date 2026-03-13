@@ -30,6 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const { data: user, isLoading } = useGetCurrentUser({
     query: {
+      queryKey: getGetCurrentUserQueryKey(),
       retry: false,
       staleTime: Infinity,
     }
@@ -67,9 +68,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     mutation: {
       onSuccess: () => {
         localStorage.removeItem("clawkit_token");
-        queryClient.setQueryData(getGetCurrentUserQueryKey(), null);
+        queryClient.clear();
         setLocation("/");
         toast({ title: "Logged out", description: "You have been logged out successfully." });
+        window.location.href = "/";
+      },
+      onSettled: () => {
+        localStorage.removeItem("clawkit_token");
+        queryClient.setQueryData(getGetCurrentUserQueryKey(), null);
       }
     }
   });

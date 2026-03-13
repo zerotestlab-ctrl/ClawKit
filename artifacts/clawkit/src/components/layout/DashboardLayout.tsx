@@ -7,11 +7,10 @@ import {
   CreditCard,
   Settings,
   LogOut,
-  Zap,
   Menu,
-  X,
   ChevronRight,
 } from "lucide-react";
+import { ClawKitLogo } from "@/components/ClawKitLogo";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
@@ -62,15 +61,8 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="p-5 pb-4 border-b border-white/5">
-        <Link
-          href="/dashboard"
-          onClick={onNavigate}
-          className="flex items-center gap-2.5 group"
-        >
-          <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center border border-primary/40 shadow-[0_0_12px_rgba(0,195,255,0.2)] group-hover:shadow-[0_0_18px_rgba(0,195,255,0.35)] transition-all">
-            <Zap className="w-4 h-4 text-primary" />
-          </div>
-          <span className="font-bold text-xl tracking-tight text-white">ClawKit</span>
+        <Link href="/dashboard" onClick={onNavigate} className="group">
+          <ClawKitLogo size="sm" className="group-hover:opacity-90 transition-opacity" />
         </Link>
       </div>
 
@@ -180,9 +172,8 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
           </Button>
 
           {/* Mobile logo */}
-          <Link href="/dashboard" className="md:hidden flex items-center gap-2">
-            <Zap className="w-4 h-4 text-primary" />
-            <span className="font-bold text-white text-base">ClawKit</span>
+          <Link href="/dashboard" className="md:hidden">
+            <ClawKitLogo size="sm" />
           </Link>
 
           {/* Right side */}

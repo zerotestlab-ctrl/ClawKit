@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { FileCode, Loader2, Sparkles, AlertCircle, CheckCircle2, Download, PlayCircle } from "lucide-react";
+import { motion } from "framer-motion";
+import { FileCode, Loader2, Sparkles, CheckCircle2, Download, PlayCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,8 +14,8 @@ import {
   useCreateProduct, 
   useGenerateClawKit, 
   useSimulateDistribution,
-  useExportProductData,
   getListProductsQueryKey,
+  getGetDashboardAnalyticsQueryKey,
   type Product
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -149,6 +150,7 @@ function ProductCard({ product }: { product: Product }) {
     mutation: {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getListProductsQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getGetDashboardAnalyticsQueryKey() });
       }
     }
   });
@@ -167,7 +169,11 @@ function ProductCard({ product }: { product: Product }) {
 
   const handleExport = async () => {
     try {
-      const res = await fetch(`/api/products/${product.id}/export`);
+      const token = localStorage.getItem("clawkit_token");
+      const res = await fetch(`/api/products/${product.id}/export`, {
+        credentials: "include",
+        ...(token && { headers: { Authorization: `Bearer ${token}` } }),
+      });
       const data = await res.json();
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
@@ -177,6 +183,27 @@ function ProductCard({ product }: { product: Product }) {
       a.click();
     } catch {
       toast({ variant: "destructive", title: "Export failed" });
+    }
+  };
+
+  const handleDownloadPdf = async () => {
+    try {
+      const token = localStorage.getItem("clawkit_token");
+      const res = await fetch(`/api/products/${product.id}/safety-pdf`, {
+        credentials: "include",
+        ...(token && { headers: { Authorization: `Bearer ${token}` } }),
+      });
+      if (!res.ok) throw new Error("Failed to download");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `clawkit-safety-${product.name.replace(/\s+/g, "-").toLowerCase()}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast({ title: "PDF downloaded", description: "Safety report saved." });
+    } catch {
+      toast({ variant: "destructive", title: "Download failed", description: "Generate ClawKit first." });
     }
   };
 
@@ -277,6 +304,18 @@ function ProductCard({ product }: { product: Product }) {
                   <TabsTrigger value="chatgpt" className="data-[state=active]:bg-primary/20 data-[state=active]:text-white">ChatGPT</TabsTrigger>
                   <TabsTrigger value="safety" className="data-[state=active]:bg-primary/20 data-[state=active]:text-white">Safety Report</TabsTrigger>
                 </TabsList>
+                
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-4">
+                  <div className="flex-1 min-w-0" />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="shrink-0 border-primary/30 text-primary hover:bg-primary/10 shadow-[0_0_12px_rgba(0,195,255,0.15)]"
+                    onClick={handleDownloadPdf}
+                  >
+                    <Download className="w-4 h-4 mr-2" /> Download PDF Report
+                  </Button>
+                </div>
                 
                 <div className="flex-1 overflow-y-auto mt-4 rounded-lg bg-black/60 border border-white/5 p-4 font-mono text-sm text-gray-300">
                   <TabsContent value="mcp" className="mt-0 whitespace-pre-wrap">{product.mcpManifest || "No data"}</TabsContent>
