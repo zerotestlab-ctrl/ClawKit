@@ -1,92 +1,12 @@
-import { useEffect } from "react";
 import { Link } from "wouter";
 import { Check, ArrowLeft, Zap, Shield, Rocket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
 import { motion } from "framer-motion";
-import { useUpgradeSubscription } from "@workspace/api-client-react";
-import { useToast } from "@/hooks/use-toast";
-
-type PlanType = "growth" | "scale";
-
-const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "pk_test_placeholder";
-
-function openPaystackCheckout({
-  email,
-  amount,
-  plan,
-  onSuccess,
-  onCancel,
-}: {
-  email: string;
-  amount: number;
-  plan: PlanType;
-  onSuccess: (reference: string) => void;
-  onCancel: () => void;
-}) {
-  const PaystackPop = (window as any).PaystackPop;
-  if (!PaystackPop) {
-    onCancel();
-    return;
-  }
-  const handler = PaystackPop.setup({
-    key: PAYSTACK_PUBLIC_KEY,
-    email,
-    amount: amount * 100,
-    currency: "USD",
-    ref: `clawkit_${plan}_${Date.now()}`,
-    metadata: { plan, custom_fields: [{ display_name: "Plan", variable_name: "plan", value: plan }] },
-    onClose: onCancel,
-    callback: (response: any) => onSuccess(response.reference),
-  });
-  handler.openIframe();
-}
 
 export function Pricing() {
   const { user } = useAuth();
-  const { toast } = useToast();
-  const upgradeMutation = useUpgradeSubscription();
-
-  useEffect(() => {
-    if (document.querySelector('script[src*="paystack"]')) return;
-    const s = document.createElement("script");
-    s.src = "https://js.paystack.co/v1/inline.js";
-    s.async = true;
-    document.head.appendChild(s);
-  }, []);
-
-  const handleUpgrade = async (plan: PlanType) => {
-    if (!user) {
-      window.location.href = "/register";
-      return;
-    }
-
-    const amount = plan === "growth" ? 99 : 299;
-
-    openPaystackCheckout({
-      email: user.email,
-      amount,
-      plan,
-      onSuccess: async (reference: string) => {
-        try {
-          await upgradeMutation.mutateAsync({
-            data: { plan: plan as any, paystackReference: reference, paystackEmail: user.email },
-          });
-          toast({
-            title: "Upgraded Successfully!",
-            description: `You are now on the ${plan.charAt(0).toUpperCase() + plan.slice(1)} plan with a 14-day free trial.`,
-          });
-          window.location.href = "/dashboard/settings";
-        } catch (err: any) {
-          toast({ variant: "destructive", title: "Upgrade failed", description: err.message });
-        }
-      },
-      onCancel: () => {
-        toast({ title: "Payment cancelled", description: "No charge was made." });
-      },
-    });
-  };
 
   return (
     <div className="min-h-screen bg-background py-10 sm:py-20 px-4 sm:px-6 relative overflow-hidden">
@@ -183,10 +103,11 @@ export function Pricing() {
               <CardFooter className="pt-2">
                 <Button
                   className="w-full shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/40 transition-all"
-                  onClick={() => handleUpgrade("growth")}
-                  disabled={upgradeMutation.isPending}
+                  asChild
                 >
-                  <Zap className="w-4 h-4 mr-2" /> Upgrade to Growth
+                  <a href="https://paystack.shop/pay/eees4kq6g7" target="_blank" rel="noopener">
+                    <Zap className="w-4 h-4 mr-2" /> Upgrade to Growth
+                  </a>
                 </Button>
               </CardFooter>
             </Card>
@@ -227,10 +148,11 @@ export function Pricing() {
                 <Button
                   variant="outline"
                   className="w-full bg-transparent border-white/20 hover:bg-white/5 text-white"
-                  onClick={() => handleUpgrade("scale")}
-                  disabled={upgradeMutation.isPending}
+                  asChild
                 >
-                  Upgrade to Scale
+                  <a href="https://paystack.shop/pay/8g8--6-gkk" target="_blank" rel="noopener">
+                    Upgrade to Scale
+                  </a>
                 </Button>
               </CardFooter>
             </Card>
