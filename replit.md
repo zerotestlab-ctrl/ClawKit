@@ -43,6 +43,8 @@ artifacts-monorepo/
 - Works with MCP, CLI, or API – no lock-in
 - Beautiful footer: "Built for the 2026 agent economy"
 - Top nav with ClawKit ⚡ logo
+- Mobile: hamburger nav with framer-motion dropdown, stacked email/CTA form
+- Desktop: inline nav links + pill email input with embedded button
 
 ### Dashboard (/dashboard) — Requires auth
 - Sidebar: Home, Products, Distribution, Pricing, Settings
@@ -67,8 +69,9 @@ artifacts-monorepo/
 
 ### Pricing (/pricing) — Public
 - Free ($0), Growth ($99/mo), Scale ($299/mo)
-- Paystack checkout integration (test mode)
+- Paystack checkout integration (test mode, loaded via useEffect)
 - 14-day free trial note
+- Mobile: stacked cards; Desktop: 3-col grid with Growth card scale-105
 
 ### Settings (/dashboard/settings)
 - Current plan badge + cancel button

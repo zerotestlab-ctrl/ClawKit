@@ -29,8 +29,8 @@ export function Products() {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-display font-bold text-white tracking-tight">Products</h1>
-          <p className="text-muted-foreground mt-1">Manage your APIs and generated agent distributions.</p>
+          <h1 className="text-2xl sm:text-3xl font-display font-bold text-white tracking-tight">Products</h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">Manage your APIs and generated agent distributions.</p>
         </div>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
@@ -228,9 +228,9 @@ function ProductCard({ product }: { product: Product }) {
 
       {/* GENERATOR DIALOG */}
       <Dialog open={isGeneratorOpen} onOpenChange={setIsGeneratorOpen}>
-        <DialogContent className="max-w-4xl bg-card/95 backdrop-blur-xl border-white/10 max-h-[85vh] flex flex-col overflow-hidden">
+        <DialogContent className="w-[95vw] max-w-4xl bg-card/95 backdrop-blur-xl border-white/10 max-h-[85vh] flex flex-col overflow-hidden mx-auto">
           <DialogHeader>
-            <DialogTitle className="text-2xl flex items-center gap-2">
+            <DialogTitle className="text-xl sm:text-2xl flex items-center gap-2">
               <Sparkles className="text-primary" /> ClawKit Generator
             </DialogTitle>
           </DialogHeader>
@@ -294,7 +294,7 @@ function ProductCard({ product }: { product: Product }) {
 
       {/* SIMULATE DIALOG */}
       <Dialog open={isSimulateOpen} onOpenChange={setIsSimulateOpen}>
-        <DialogContent className="max-w-3xl bg-card/95 backdrop-blur-xl border-white/10">
+        <DialogContent className="w-[95vw] max-w-3xl bg-card/95 backdrop-blur-xl border-white/10 mx-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-xl">
               <PlayCircle className="text-primary" /> Distribution Simulation
@@ -311,14 +311,14 @@ function ProductCard({ product }: { product: Product }) {
             </div>
           ) : simulateMutation.data ? (
             <div className="space-y-6 mt-4">
-              <div className="flex gap-4 mb-6">
-                <div className="flex-1 bg-primary/10 border border-primary/20 rounded-xl p-4 text-center">
-                  <p className="text-xs text-primary uppercase font-bold tracking-wider">Simulated Invocations</p>
-                  <p className="text-3xl font-display font-bold text-white mt-1">+{simulateMutation.data.totalInvocations}</p>
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6">
+                <div className="flex-1 bg-primary/10 border border-primary/20 rounded-xl p-3 sm:p-4 text-center">
+                  <p className="text-[10px] sm:text-xs text-primary uppercase font-bold tracking-wider">Simulated Invocations</p>
+                  <p className="text-2xl sm:text-3xl font-display font-bold text-white mt-1">+{simulateMutation.data.totalInvocations}</p>
                 </div>
-                <div className="flex-1 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 text-center">
-                  <p className="text-xs text-emerald-400 uppercase font-bold tracking-wider">Projected Impact</p>
-                  <p className="text-3xl font-display font-bold text-white mt-1">{formatCurrency(simulateMutation.data.projectedRevenue)}</p>
+                <div className="flex-1 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3 sm:p-4 text-center">
+                  <p className="text-[10px] sm:text-xs text-emerald-400 uppercase font-bold tracking-wider">Projected Impact</p>
+                  <p className="text-2xl sm:text-3xl font-display font-bold text-white mt-1">{formatCurrency(simulateMutation.data.projectedRevenue)}</p>
                 </div>
               </div>
 
