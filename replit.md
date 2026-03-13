@@ -1,8 +1,8 @@
-# Workspace
+# ClawKit — AI Agent Distribution Platform
 
 ## Overview
 
-pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
+ClawKit is a production-grade SaaS platform for distributing AI agents and developer tools in 2026. It's the open distribution layer for developer tools and coding agents. Tagline: "One upload. Invoked everywhere."
 
 ## Stack
 
@@ -10,87 +10,109 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - **Node.js version**: 24
 - **Package manager**: pnpm
 - **TypeScript version**: 5.9
-- **API framework**: Express 5
+- **Frontend**: React 19 + Vite (artifacts/clawkit) — dark fintech aesthetic, electric blue neon accents
+- **API framework**: Express 5 (artifacts/api-server)
 - **Database**: PostgreSQL + Drizzle ORM
-- **Validation**: Zod (`zod/v4`), `drizzle-zod`
+- **Validation**: Zod (zod/v4), drizzle-zod
 - **API codegen**: Orval (from OpenAPI spec)
-- **Build**: esbuild (CJS bundle)
+- **UI**: shadcn/ui, Tailwind, framer-motion, recharts
+- **Auth**: Custom session token auth (HMAC-SHA256, stored in localStorage)
+- **Payments**: Paystack integration (test mode) — Growth $99/mo, Scale $299/mo
 
 ## Structure
 
 ```text
 artifacts-monorepo/
-├── artifacts/              # Deployable applications
-│   └── api-server/         # Express API server
-├── lib/                    # Shared libraries
-│   ├── api-spec/           # OpenAPI spec + Orval codegen config
+├── artifacts/
+│   ├── api-server/         # Express API server
+│   └── clawkit/            # React frontend (preview at /)
+├── lib/
+│   ├── api-spec/           # OpenAPI spec + Orval codegen
 │   ├── api-client-react/   # Generated React Query hooks
-│   ├── api-zod/            # Generated Zod schemas from OpenAPI
+│   ├── api-zod/            # Generated Zod schemas
 │   └── db/                 # Drizzle ORM schema + DB connection
-├── scripts/                # Utility scripts (single workspace package)
-│   └── src/                # Individual .ts scripts, run via `pnpm --filter @workspace/scripts run <script>`
-├── pnpm-workspace.yaml     # pnpm workspace (artifacts/*, lib/*, lib/integrations/*, scripts)
-├── tsconfig.base.json      # Shared TS options (composite, bundler resolution, es2022)
-├── tsconfig.json           # Root TS project references
-└── package.json            # Root package with hoisted devDeps
+├── scripts/
+└── pnpm-workspace.yaml
 ```
 
-## TypeScript & Composite Projects
+## Features
 
-Every package extends `tsconfig.base.json` which sets `composite: true`. The root `tsconfig.json` lists all packages as project references. This means:
+### Public Landing Page (/)
+- Hero: "One upload. Invoked everywhere."
+- Email waitlist capture (POST /api/waitlist)
+- Works with MCP, CLI, or API – no lock-in
+- Beautiful footer: "Built for the 2026 agent economy"
+- Top nav with ClawKit ⚡ logo
 
-- **Always typecheck from the root** — run `pnpm run typecheck` (which runs `tsc --build --emitDeclarationOnly`). This builds the full dependency graph so that cross-package imports resolve correctly. Running `tsc` inside a single package will fail if its dependencies haven't been built yet.
-- **`emitDeclarationOnly`** — we only emit `.d.ts` files during typecheck; actual JS bundling is handled by esbuild/tsx/vite...etc, not `tsc`.
-- **Project references** — when package A depends on package B, A's `tsconfig.json` must list B in its `references` array. `tsc --build` uses this to determine build order and skip up-to-date packages.
+### Dashboard (/dashboard) — Requires auth
+- Sidebar: Home, Products, Distribution, Pricing, Settings
+- Analytics overview card (invocations, revenue)
+- Recent products list
 
-## Root Scripts
+### Products (/dashboard/products)
+- Upload form: name, description, API spec file, website URL
+- "Generate ClawKit" button — generates:
+  1. Full 2026 MCP manifest JSON
+  2. AGENTS.md for ChatGPT/Claude/Grok
+  3. ChatGPT Apps submission text
+  4. Claude Marketplace submission
+  5. Moltbook/OpenClaw variant
+- Safety Auditor: Score XX/100 + issues list
+- "Simulate Distribution" — generates 3 realistic agent invocations
+- "Export All My Data Forever" button
 
-- `pnpm run build` — runs `typecheck` first, then recursively runs `build` in all packages that define it
-- `pnpm run typecheck` — runs `tsc --build --emitDeclarationOnly` using project references
+### Analytics (/dashboard/analytics)
+- Charts with Recharts (weekly invocations, platform breakdown)
+- Timeline of agent invocations
 
-## Packages
+### Pricing (/pricing) — Public
+- Free ($0), Growth ($99/mo), Scale ($299/mo)
+- Paystack checkout integration (test mode)
+- 14-day free trial note
 
-### `artifacts/api-server` (`@workspace/api-server`)
+### Settings (/dashboard/settings)
+- Current plan badge + cancel button
+- Grok API key (encrypted at rest with AES-256-CBC)
+- Email notifications toggle
 
-Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` for request and response validation and `@workspace/db` for persistence.
+## Database Tables
 
-- Entry: `src/index.ts` — reads `PORT`, starts Express
-- App setup: `src/app.ts` — mounts CORS, JSON/urlencoded parsing, routes at `/api`
-- Routes: `src/routes/index.ts` mounts sub-routers; `src/routes/health.ts` exposes `GET /health` (full path: `/api/health`)
-- Depends on: `@workspace/db`, `@workspace/api-zod`
-- `pnpm --filter @workspace/api-server run dev` — run the dev server
-- `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.cjs`)
-- Build bundles an allowlist of deps (express, cors, pg, drizzle-orm, zod, etc.) and externalizes the rest
+- `users` — email/password auth, plan
+- `waitlist` — email waitlist
+- `products` — uploaded products with generated artifacts
+- `subscriptions` — Paystack subscription tracking
+- `invocations` — agent invocation logs
+- `user_settings` — Grok API key (encrypted), preferences
 
-### `lib/db` (`@workspace/db`)
+## API Routes
 
-Database layer using Drizzle ORM with PostgreSQL. Exports a Drizzle client instance and schema models.
+- `POST /api/waitlist` — join waitlist
+- `POST /api/auth/register` — register
+- `POST /api/auth/login` — login (returns JWT-style token)
+- `GET /api/auth/me` — current user
+- `POST /api/auth/logout` — logout
+- `GET/POST /api/products` — list/create products
+- `POST /api/products/:id/generate` — generate ClawKit artifacts
+- `POST /api/products/:id/simulate` — simulate distribution
+- `GET /api/products/:id/export` — export product data
+- `GET /api/analytics/dashboard` — dashboard stats
+- `GET /api/analytics/invocations` — invocation timeline
+- `GET /api/subscriptions/current` — current subscription
+- `POST /api/subscriptions/upgrade` — upgrade (post-Paystack)
+- `POST /api/subscriptions/cancel` — cancel subscription
+- `GET/PUT /api/settings` — user settings
 
-- `src/index.ts` — creates a `Pool` + Drizzle instance, exports schema
-- `src/schema/index.ts` — barrel re-export of all models
-- `src/schema/<modelname>.ts` — table definitions with `drizzle-zod` insert schemas (no models definitions exist right now)
-- `drizzle.config.ts` — Drizzle Kit config (requires `DATABASE_URL`, automatically provided by Replit)
-- Exports: `.` (pool, db, schema), `./schema` (schema only)
+## Auth
 
-Production migrations are handled by Replit when publishing. In development, we just use `pnpm --filter @workspace/db run push`, and we fallback to `pnpm --filter @workspace/db run push-force`.
+Custom HMAC-SHA256 session tokens. Token stored in localStorage, sent as Authorization: Bearer header. Cookie also set for server-side sessions.
 
-### `lib/api-spec` (`@workspace/api-spec`)
+## Environment Variables
 
-Owns the OpenAPI 3.1 spec (`openapi.yaml`) and the Orval config (`orval.config.ts`). Running codegen produces output into two sibling packages:
+- `DATABASE_URL` — PostgreSQL connection string (provisioned by Replit)
+- `SESSION_SECRET` — Secret for HMAC signing
+- `VITE_PAYSTACK_PUBLIC_KEY` — Paystack public key (test: pk_test_...)
 
-1. `lib/api-client-react/src/generated/` — React Query hooks + fetch client
-2. `lib/api-zod/src/generated/` — Zod schemas
+## Paystack Setup
 
-Run codegen: `pnpm --filter @workspace/api-spec run codegen`
-
-### `lib/api-zod` (`@workspace/api-zod`)
-
-Generated Zod schemas from the OpenAPI spec (e.g. `HealthCheckResponse`). Used by `api-server` for response validation.
-
-### `lib/api-client-react` (`@workspace/api-client-react`)
-
-Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHealthCheck`, `healthCheck`).
-
-### `scripts` (`@workspace/scripts`)
-
-Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.
+Set `VITE_PAYSTACK_PUBLIC_KEY` in secrets to your Paystack test public key.
+After payment success, frontend calls POST /api/subscriptions/upgrade with the Paystack reference.

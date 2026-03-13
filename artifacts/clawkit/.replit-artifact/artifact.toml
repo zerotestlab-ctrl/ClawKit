@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "ClawKit"
+version = "1.0.0"
+id = "artifacts/clawkit"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+localPort = 19092
+name = "web"
+paths = ["/"]
+
+[services.development]
+run = "pnpm --filter @workspace/clawkit run dev"
+
+[services.env]
+PORT = "19092"
+BASE_PATH = "/"
+
+[services.production]
+build = ["pnpm", "--filter", "@workspace/clawkit", "run", "build"]
+publicDir = "artifacts/clawkit/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"

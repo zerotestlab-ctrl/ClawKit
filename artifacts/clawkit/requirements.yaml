@@ -1,0 +1,20 @@
+packages:
+  "framer-motion": "Smooth page transitions, layout animations, and premium visual effects"
+  "recharts": "Dashboard analytics charts and data visualization"
+  "@hookform/resolvers": "Zod validation integration with react-hook-form"
+  "zod": "Schema validation for forms"
+  "date-fns": "Human-readable date formatting"
+  "clsx": "Utility for constructing className strings"
+  "tailwind-merge": "Utility for merging tailwind classes without conflicts"
+
+images:
+  - path: "artifacts/clawkit/public/images/hero-bg.png"
+    description: "Dark premium fintech abstract background with deep navy, pitch black, and subtle electric blue neon glowing lines, glassmorphism light leaks, highly polished and technological"
+    aspect_ratio: "16:9"
+  - path: "artifacts/clawkit/public/images/glow-orb.png"
+    description: "Abstract electric blue glowing orb, soft blurred edges, pure energy feeling on transparent or dark background"
+    aspect_ratio: "1:1"
+
+notes:
+  - Using generated Orval hooks from @workspace/api-client-react
+  - Paystack integration will use mock flow or inline JS if key available
