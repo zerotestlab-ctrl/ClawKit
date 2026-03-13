@@ -7,7 +7,6 @@ import NotFound from "@/pages/not-found";
 import { AuthProvider } from "@/hooks/use-auth";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 
-// Pages
 import { Landing } from "@/pages/Landing";
 import { Login } from "@/pages/Login";
 import { Register } from "@/pages/Register";
@@ -26,19 +25,9 @@ const queryClient = new QueryClient({
   },
 });
 
-function DashboardRoutes() {
-  return (
-    <DashboardLayout>
-      <Switch>
-        <Route path="/dashboard" component={DashboardHome} />
-        <Route path="/dashboard/products" component={Products} />
-        <Route path="/dashboard/analytics" component={Analytics} />
-        <Route path="/dashboard/settings" component={Settings} />
-        <Route component={NotFound} />
-      </Switch>
-    </DashboardLayout>
-  );
-}
+const D = ({ children }: { children: React.ReactNode }) => (
+  <DashboardLayout>{children}</DashboardLayout>
+);
 
 function Router() {
   return (
@@ -47,7 +36,18 @@ function Router() {
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/pricing" component={Pricing} />
-      <Route path="/dashboard/*" component={DashboardRoutes} />
+      <Route path="/dashboard">
+        {() => <D><DashboardHome /></D>}
+      </Route>
+      <Route path="/dashboard/products">
+        {() => <D><Products /></D>}
+      </Route>
+      <Route path="/dashboard/analytics">
+        {() => <D><Analytics /></D>}
+      </Route>
+      <Route path="/dashboard/settings">
+        {() => <D><Settings /></D>}
+      </Route>
       <Route component={NotFound} />
     </Switch>
   );

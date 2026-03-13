@@ -27,14 +27,14 @@ export function Products() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-display font-bold text-white tracking-tight">Products</h1>
           <p className="text-muted-foreground mt-1">Manage your APIs and generated agent distributions.</p>
         </div>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
-            <Button className="shadow-lg shadow-primary/20">Upload New Product</Button>
+            <Button className="shadow-lg shadow-primary/20 w-full sm:w-auto">Upload New Product</Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[500px] bg-card/90 backdrop-blur-xl border-white/10">
             <DialogHeader>
@@ -245,7 +245,7 @@ function ProductCard({ product }: { product: Product }) {
             </div>
           ) : product.generated ? (
             <div className="flex-1 overflow-hidden flex flex-col gap-6 mt-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl bg-black/40 border border-white/10 flex items-center gap-4">
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold ${
                     (product.safetyScore || 0) > 90 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 
@@ -271,7 +271,7 @@ function ProductCard({ product }: { product: Product }) {
               </div>
               
               <Tabs defaultValue="mcp" className="flex-1 flex flex-col min-h-0">
-                <TabsList className="bg-black/40 border border-white/10 w-full justify-start p-1 h-auto">
+                <TabsList className="bg-black/40 border border-white/10 w-full justify-start p-1 h-auto flex-wrap sm:flex-nowrap overflow-x-auto">
                   <TabsTrigger value="mcp" className="data-[state=active]:bg-primary/20 data-[state=active]:text-white">MCP Manifest</TabsTrigger>
                   <TabsTrigger value="agents" className="data-[state=active]:bg-primary/20 data-[state=active]:text-white">AGENTS.md</TabsTrigger>
                   <TabsTrigger value="chatgpt" className="data-[state=active]:bg-primary/20 data-[state=active]:text-white">ChatGPT</TabsTrigger>
