@@ -262,7 +262,7 @@ export function DashboardHome() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {productsData.products.slice(0, 4).map((product) => (
+            {(productsData?.products ?? []).slice(0, 4).map((product) => (
               <Card
                 key={product.id}
                 className="bg-card/35 border-white/8 hover:bg-card/55 hover:border-white/15 transition-all group"

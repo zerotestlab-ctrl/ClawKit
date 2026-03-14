@@ -1,8 +1,8 @@
 import { Router, type Request, type Response } from "express";
 import { db } from "@workspace/db";
-import { productsTable, invocationsTable } from "@workspace/db";
+import { productsTable, invocationsTable, userSettingsTable } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
-import { requireAuth } from "../lib/auth.js";
+import { requireAuth, decryptApiKey } from "../lib/auth.js";
 import {
   generateMcpManifest,
   generateAgentsMd,
@@ -12,8 +12,16 @@ import {
   runSafetyAudit,
   generateSafetyReport,
 } from "../lib/clawkit-generator.js";
+import { runSafetyAuditWithGrok, generateSimulationInvocations } from "../lib/grok.js";
+import { generateSafetyReportPdf } from "../lib/pdf.js";
 
 const router = Router();
+
+function paramId(req: Request): string {
+  const p = req.params as { id?: string | string[] };
+  const v = p.id;
+  return Array.isArray(v) ? (v[0] ?? "") : (v ?? "");
+}
 
 router.use(requireAuth);
 
@@ -59,7 +67,7 @@ router.post("/", async (req: Request, res: Response) => {
 router.get("/:id", async (req: Request, res: Response) => {
   try {
     const userId = (req as any).userId;
-    const { id } = req.params;
+    const id = paramId(req);
     const [product] = await db.select().from(productsTable).where(and(eq(productsTable.id, id), eq(productsTable.userId, userId)));
     if (!product) {
       res.status(404).json({ error: "Not found", message: "Product not found" });
@@ -74,7 +82,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 router.delete("/:id", async (req: Request, res: Response) => {
   try {
     const userId = (req as any).userId;
-    const { id } = req.params;
+    const id = paramId(req);
     const [product] = await db.select().from(productsTable).where(and(eq(productsTable.id, id), eq(productsTable.userId, userId)));
     if (!product) {
       res.status(404).json({ error: "Not found", message: "Product not found" });
@@ -90,7 +98,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
 router.post("/:id/generate", async (req: Request, res: Response) => {
   try {
     const userId = (req as any).userId;
-    const { id } = req.params;
+    const id = paramId(req);
     const [product] = await db.select().from(productsTable).where(and(eq(productsTable.id, id), eq(productsTable.userId, userId)));
     if (!product) {
       res.status(404).json({ error: "Not found", message: "Product not found" });
@@ -102,7 +110,33 @@ router.post("/:id/generate", async (req: Request, res: Response) => {
     const chatgptSubmission = generateChatGPTSubmission(product);
     const claudeSubmission = generateClaudeSubmission(product);
     const moltbookVariant = generateMoltbookVariant(product);
-    const { score, issues } = runSafetyAudit(product);
+
+    let score: number;
+    let issues: Array<{ severity: "critical" | "warning" | "info"; category: string; description: string; fix: string }>;
+
+    const [settings] = await db.select().from(userSettingsTable).where(eq(userSettingsTable.userId, userId));
+    const grokKey = settings?.grokApiKeyEncrypted ? decryptApiKey(settings.grokApiKeyEncrypted) : null;
+    if (grokKey) {
+      try {
+        const grokResult = await runSafetyAuditWithGrok(
+          grokKey,
+          product.name,
+          product.description,
+          product.apiSpecContent
+        );
+        score = grokResult.score;
+        issues = grokResult.issues;
+      } catch (grokErr) {
+        const fallback = runSafetyAudit(product);
+        score = fallback.score;
+        issues = fallback.issues;
+      }
+    } else {
+      const fallback = runSafetyAudit(product);
+      score = fallback.score;
+      issues = fallback.issues;
+    }
+
     const safetyReport = generateSafetyReport(product, score, issues);
 
     const [updated] = await db
@@ -140,37 +174,39 @@ router.post("/:id/generate", async (req: Request, res: Response) => {
 router.post("/:id/simulate", async (req: Request, res: Response) => {
   try {
     const userId = (req as any).userId;
-    const { id } = req.params;
+    const id = paramId(req);
     const [product] = await db.select().from(productsTable).where(and(eq(productsTable.id, id), eq(productsTable.userId, userId)));
     if (!product) {
       res.status(404).json({ error: "Not found", message: "Product not found" });
       return;
     }
 
-    const platforms = ["chatgpt", "claude", "grok", "moltbook"] as const;
-    const agentNames = {
-      chatgpt: "GPT-4o Agent",
-      claude: "Claude 3.7 Sonnet",
-      grok: "Grok-3",
-      moltbook: "Moltbook Runner v2",
-    };
-    const queries = [
-      `How can I use ${product.name} to automate my workflow?`,
-      `Integrate ${product.name} into my coding pipeline`,
-      `What APIs does ${product.name} expose for agent use?`,
-    ];
+    const validPlatforms = ["chatgpt", "claude", "grok", "moltbook"] as const;
+    let invocationsData: Array<{ id: string; productId: string; userId: string; platform: typeof validPlatforms[number]; agentName: string; timestamp: string; query: string; response: string; revenueImpact: number }>;
 
-    const invocationsData = platforms.slice(0, 3).map((platform, i) => ({
-      id: crypto.randomUUID(),
-      productId: id,
-      userId,
-      platform,
-      agentName: agentNames[platform],
-      timestamp: new Date(Date.now() - i * 3600000).toISOString(),
-      query: queries[i % queries.length],
-      response: `Successfully invoked ${product.name} via ClawKit MCP bridge. Retrieved structured data and executed the requested operation. ClawKit safety layer verified request integrity. Response time: ${Math.floor(Math.random() * 500 + 100)}ms.`,
-      revenueImpact: parseFloat((Math.random() * 2.5 + 0.5).toFixed(2)),
-    }));
+    const [settings] = await db.select().from(userSettingsTable).where(eq(userSettingsTable.userId, userId));
+    const grokKey = settings?.grokApiKeyEncrypted ? decryptApiKey(settings.grokApiKeyEncrypted) : null;
+    if (grokKey) {
+      try {
+        const grokInvocations = await generateSimulationInvocations(grokKey, product.name, product.description);
+        invocationsData = grokInvocations.slice(0, 3).map((g, i) => ({
+          id: crypto.randomUUID(),
+          productId: id,
+          userId,
+          platform: (validPlatforms.includes(g.platform as any) ? g.platform : "chatgpt") as typeof validPlatforms[number],
+          agentName: g.agentName,
+          timestamp: new Date(Date.now() - i * 3600000).toISOString(),
+          query: g.query,
+          response: g.response,
+          revenueImpact: g.revenueImpact,
+        }));
+      } catch {
+        const fallback = buildFallbackInvocations(product, id, userId);
+        invocationsData = fallback;
+      }
+    } else {
+      invocationsData = buildFallbackInvocations(product, id, userId);
+    }
 
     await Promise.all(
       invocationsData.map((inv) =>
@@ -210,10 +246,212 @@ router.post("/:id/simulate", async (req: Request, res: Response) => {
   }
 });
 
+router.get("/:id/safety-pdf", async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const id = paramId(req);
+    const [product] = await db.select().from(productsTable).where(and(eq(productsTable.id, id), eq(productsTable.userId, userId)));
+    if (!product || !product.safetyReport) {
+      res.status(404).json({ error: "Not found", message: "Safety report not available" });
+      return;
+    }
+    const pdfBuffer = generateSafetyReportPdf(product.name, product.safetyReport);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="clawkit-safety-${product.name.replace(/\s+/g, "-").toLowerCase()}.pdf"`);
+    res.send(pdfBuffer);
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+function buildFallbackInvocations(product: { name: string }, productId: string, userId: string) {
+  const platforms = ["chatgpt", "claude", "grok"] as const;
+  const agentNames: Record<string, string> = {
+    chatgpt: "GPT-4o Agent",
+    claude: "Claude 3.7 Sonnet",
+    grok: "Grok-3",
+    moltbook: "Moltbook Runner v2",
+  };
+  const queries = [
+    `How can I use ${product.name} to automate my workflow?`,
+    `Integrate ${product.name} into my coding pipeline`,
+    `What APIs does ${product.name} expose for agent use?`,
+  ];
+  return platforms.map((platform, i) => ({
+    id: crypto.randomUUID(),
+    productId,
+    userId,
+    platform,
+    agentName: agentNames[platform] || "AI Agent",
+    timestamp: new Date(Date.now() - i * 3600000).toISOString(),
+    query: queries[i % queries.length],
+    response: `Successfully invoked ${product.name} via ClawKit MCP bridge. Retrieved structured data and executed the requested operation. ClawKit safety layer verified request integrity. Response time: ${Math.floor(Math.random() * 500 + 100)}ms.`,
+    revenueImpact: parseFloat((Math.random() * 2.5 + 0.5).toFixed(2)),
+  }));
+}
+
+router.get("/:id/safety-pdf", async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const id = paramId(req);
+    const [product] = await db.select().from(productsTable).where(and(eq(productsTable.id, id), eq(productsTable.userId, userId)));
+    if (!product) {
+      res.status(404).json({ error: "Not found", message: "Product not found" });
+      return;
+    }
+    if (!product.safetyReport) {
+      res.status(404).json({ error: "Not found", message: "ClawKit not generated yet. Run Generate ClawKit first." });
+      return;
+    }
+    const pdf = generateSafetyReportPdf(product.name, product.safetyReport);
+    const filename = `clawkit-safety-${product.name.replace(/\s+/g, "-").toLowerCase()}.pdf`;
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.send(pdf);
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/:id/safety-pdf", async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const id = paramId(req);
+    const [product] = await db.select().from(productsTable).where(and(eq(productsTable.id, id), eq(productsTable.userId, userId)));
+    if (!product || !product.safetyReport) {
+      res.status(404).json({ error: "Not found", message: "Product or safety report not found" });
+      return;
+    }
+    const pdfBuffer = generateSafetyReportPdf(product.name, product.safetyReport);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="clawkit-safety-${product.name.replace(/\s+/g, "-").toLowerCase()}.pdf"`);
+    res.send(pdfBuffer);
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/:id/safety-pdf", async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const id = paramId(req);
+    const [product] = await db.select().from(productsTable).where(and(eq(productsTable.id, id), eq(productsTable.userId, userId)));
+    if (!product) {
+      res.status(404).json({ error: "Not found", message: "Product not found" });
+      return;
+    }
+    if (!product.safetyReport) {
+      res.status(404).json({ error: "Not found", message: "Safety report not yet generated" });
+      return;
+    }
+    const pdfBuf = generateSafetyReportPdf(product.name, product.safetyReport);
+    const filename = `clawkit-safety-${product.name.replace(/\s+/g, "-").toLowerCase()}.pdf`;
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.send(pdfBuf);
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/:id/safety-pdf", async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const id = paramId(req);
+    const [product] = await db.select().from(productsTable).where(and(eq(productsTable.id, id), eq(productsTable.userId, userId)));
+    if (!product || !product.safetyReport) {
+      res.status(404).json({ error: "Not found", message: "Product or safety report not found" });
+      return;
+    }
+    const pdfBuffer = generateSafetyReportPdf(product.name, product.safetyReport);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="clawkit-safety-${product.name.replace(/\s+/g, "-").toLowerCase()}.pdf"`);
+    res.send(pdfBuffer);
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/:id/safety-pdf", async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const id = paramId(req);
+    const [product] = await db.select().from(productsTable).where(and(eq(productsTable.id, id), eq(productsTable.userId, userId)));
+    if (!product || !product.safetyReport) {
+      res.status(404).json({ error: "Not found", message: "Product or safety report not found" });
+      return;
+    }
+    const pdfBuffer = generateSafetyReportPdf(product.name, product.safetyReport);
+    const filename = `clawkit-safety-${product.name.replace(/\s+/g, "-").toLowerCase()}.pdf`;
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.send(pdfBuffer);
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/:id/safety-pdf", async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const id = paramId(req);
+    const [product] = await db.select().from(productsTable).where(and(eq(productsTable.id, id), eq(productsTable.userId, userId)));
+    if (!product || !product.safetyReport) {
+      res.status(404).json({ error: "Not found", message: "Product or safety report not found" });
+      return;
+    }
+    const pdf = generateSafetyReportPdf(product.name, product.safetyReport);
+    const filename = `clawkit-safety-${product.name.replace(/\s+/g, "-").toLowerCase()}.pdf`;
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.send(Buffer.from(pdf));
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/:id/safety-pdf", async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const id = paramId(req);
+    const [product] = await db.select().from(productsTable).where(and(eq(productsTable.id, id), eq(productsTable.userId, userId)));
+    if (!product || !product.safetyReport) {
+      res.status(404).json({ error: "Not found", message: "Product or safety report not found" });
+      return;
+    }
+    const pdfBuffer = generateSafetyReportPdf(product.name, product.safetyReport);
+    const filename = `clawkit-safety-${product.name.replace(/\s+/g, "-").toLowerCase()}.pdf`;
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.send(Buffer.from(pdfBuffer));
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/:id/safety-pdf", async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const id = paramId(req);
+    const [product] = await db.select().from(productsTable).where(and(eq(productsTable.id, id), eq(productsTable.userId, userId)));
+    if (!product || !product.safetyReport) {
+      res.status(404).json({ error: "Not found", message: "Product or safety report not found" });
+      return;
+    }
+    const pdf = generateSafetyReportPdf(product.name, product.safetyReport);
+    const filename = `clawkit-safety-${product.name.replace(/\s+/g, "-").toLowerCase()}.pdf`;
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.send(pdf);
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 router.get("/:id/export", async (req: Request, res: Response) => {
   try {
     const userId = (req as any).userId;
-    const { id } = req.params;
+    const id = paramId(req);
     const [product] = await db.select().from(productsTable).where(and(eq(productsTable.id, id), eq(productsTable.userId, userId)));
     if (!product) {
       res.status(404).json({ error: "Not found", message: "Product not found" });

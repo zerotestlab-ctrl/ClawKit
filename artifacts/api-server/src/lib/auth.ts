@@ -38,6 +38,19 @@ export function encryptApiKey(key: string): string {
   return iv.toString("hex") + ":" + encrypted.toString("hex");
 }
 
+export function decryptApiKey(encrypted: string): string | null {
+  try {
+    const [ivHex, encHex] = encrypted.split(":");
+    if (!ivHex || !encHex) return null;
+    const iv = Buffer.from(ivHex, "hex");
+    const encryptedBuf = Buffer.from(encHex, "hex");
+    const decipher = crypto.createDecipheriv("aes-256-cbc", Buffer.from(SESSION_SECRET.padEnd(32, "0").slice(0, 32)), iv);
+    return Buffer.concat([decipher.update(encryptedBuf), decipher.final()]).toString("utf8");
+  } catch {
+    return null;
+  }
+}
+
 export function requireAuth(req: Request, res: Response, next: NextFunction): void {
   const token = req.cookies?.["session"] || req.headers.authorization?.replace("Bearer ", "");
   if (!token) {
