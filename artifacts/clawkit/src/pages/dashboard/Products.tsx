@@ -80,7 +80,7 @@ function CreateProductForm({ onSuccess }: { onSuccess: () => void }) {
     mutation: {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getListProductsQueryKey() });
-        toast({ title: "Product created", description: "Ready to generate ClawKit." });
+        toast({ title: "Product created", description: "Ready to generate Invokex." });
         onSuccess();
       },
       onError: (err: any) => toast({ variant: "destructive", title: "Error", description: err.message })
@@ -140,7 +140,7 @@ function ProductCard({ product }: { product: Product }) {
     mutation: {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getListProductsQueryKey() });
-        toast({ title: "ClawKit Generated!", description: "Distribution files and safety report are ready." });
+        toast({ title: "Invokex Generated!", description: "Distribution files and safety report are ready." });
       },
       onError: (err: any) => toast({ variant: "destructive", title: "Generation failed", description: err.message })
     }
@@ -169,7 +169,7 @@ function ProductCard({ product }: { product: Product }) {
 
   const handleExport = async () => {
     try {
-      const token = localStorage.getItem("clawkit_token");
+      const token = localStorage.getItem("invokex_token");
       const res = await fetch(`/api/products/${product.id}/export`, {
         credentials: "include",
         ...(token && { headers: { Authorization: `Bearer ${token}` } }),
@@ -179,7 +179,7 @@ function ProductCard({ product }: { product: Product }) {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `clawkit-export-${product.name.replace(/\s+/g, '-').toLowerCase()}.json`;
+      a.download = `invokex-export-${product.name.replace(/\s+/g, '-').toLowerCase()}.json`;
       a.click();
     } catch {
       toast({ variant: "destructive", title: "Export failed" });
@@ -188,7 +188,7 @@ function ProductCard({ product }: { product: Product }) {
 
   const handleDownloadPdf = async () => {
     try {
-      const token = localStorage.getItem("clawkit_token");
+      const token = localStorage.getItem("invokex_token");
       const res = await fetch(`/api/products/${product.id}/safety-pdf`, {
         credentials: "include",
         ...(token && { headers: { Authorization: `Bearer ${token}` } }),
@@ -198,12 +198,12 @@ function ProductCard({ product }: { product: Product }) {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `clawkit-safety-${product.name.replace(/\s+/g, "-").toLowerCase()}.pdf`;
+      a.download = `invokex-safety-${product.name.replace(/\s+/g, "-").toLowerCase()}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
       toast({ title: "PDF downloaded", description: "Safety report saved." });
     } catch {
-      toast({ variant: "destructive", title: "Download failed", description: "Generate ClawKit first." });
+      toast({ variant: "destructive", title: "Download failed", description: "Generate Invokex first." });
     }
   };
 
@@ -214,7 +214,7 @@ function ProductCard({ product }: { product: Product }) {
           <div className="flex items-center gap-3 mb-2">
             <h3 className="text-xl font-bold text-white">{product.name}</h3>
             {product.generated ? (
-              <Badge className="bg-primary/20 text-primary border-primary/30"><CheckCircle2 className="w-3 h-3 mr-1" /> ClawKit Ready</Badge>
+              <Badge className="bg-primary/20 text-primary border-primary/30"><CheckCircle2 className="w-3 h-3 mr-1" /> Invokex Ready</Badge>
             ) : (
               <Badge variant="outline" className="text-muted-foreground border-white/20">Draft</Badge>
             )}
@@ -238,7 +238,7 @@ function ProductCard({ product }: { product: Product }) {
             onClick={handleGenerate}
           >
             <Sparkles className="w-4 h-4 mr-2" />
-            {product.generated ? "View ClawKit" : "Generate ClawKit"}
+            {product.generated ? "View Invokex" : "Generate Invokex"}
           </Button>
           
           <Button variant="outline" className="w-full border-white/20 hover:bg-white/10" onClick={handleSimulate}>
@@ -258,7 +258,7 @@ function ProductCard({ product }: { product: Product }) {
         <DialogContent className="w-[95vw] max-w-4xl bg-card/95 backdrop-blur-xl border-white/10 max-h-[85vh] flex flex-col overflow-hidden mx-auto">
           <DialogHeader>
             <DialogTitle className="text-xl sm:text-2xl flex items-center gap-2">
-              <Sparkles className="text-primary" /> ClawKit Generator
+              <Sparkles className="text-primary" /> Invokex Generator
             </DialogTitle>
           </DialogHeader>
           
@@ -326,7 +326,7 @@ function ProductCard({ product }: { product: Product }) {
               </Tabs>
             </div>
           ) : (
-            <div className="text-red-400 p-4">Error generating ClawKit.</div>
+            <div className="text-red-400 p-4">Error generating Invokex.</div>
           )}
         </DialogContent>
       </Dialog>

@@ -10,7 +10,7 @@ import {
   Menu,
   ChevronRight,
 } from "lucide-react";
-import { ClawKitLogo } from "@/components/ClawKitLogo";
+import { InvokexLogo } from "@/components/InvokexLogo";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
@@ -62,7 +62,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       {/* Logo */}
       <div className="p-5 pb-4 border-b border-white/5">
         <Link href="/dashboard" onClick={onNavigate} className="group">
-          <ClawKitLogo size="sm" className="group-hover:opacity-90 transition-opacity" />
+          <InvokexLogo size="sm" className="group-hover:opacity-90 transition-opacity" />
         </Link>
       </div>
 
@@ -173,7 +173,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
 
           {/* Mobile logo */}
           <Link href="/dashboard" className="md:hidden">
-            <ClawKitLogo size="sm" />
+            <InvokexLogo size="sm" />
           </Link>
 
           {/* Right side */}

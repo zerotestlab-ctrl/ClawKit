@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { useJoinWaitlist } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
-import { ClawKitLogo } from "@/components/ClawKitLogo";
+import { InvokexLogo } from "@/components/InvokexLogo";
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 24 },
@@ -34,7 +34,7 @@ export function Landing() {
   const waitlistMutation = useJoinWaitlist({
     mutation: {
       onSuccess: () => {
-        toast({ title: "You're on the list!", description: "We'll notify you when ClawKit is ready." });
+        toast({ title: "You're on the list!", description: "We'll notify you when Invokex is ready." });
         setEmail("");
       },
       onError: (err: any) => {
@@ -62,7 +62,7 @@ export function Landing() {
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 h-16 sm:h-[72px]">
           <Link href="/">
-            <ClawKitLogo size="sm" />
+            <InvokexLogo size="sm" />
           </Link>
 
           <div className="hidden sm:flex items-center gap-5 lg:gap-8">
@@ -117,7 +117,7 @@ export function Landing() {
       <section className="relative z-10 pt-28 sm:pt-36 lg:pt-44 pb-16 sm:pb-24">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div {...fadeUp(0)} className="flex justify-center mb-8 sm:mb-10">
-            <ClawKitLogo size="xl" showText={false} />
+            <InvokexLogo size="xl" showText={false} />
           </motion.div>
 
           <motion.div {...fadeUp(0.05)} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] backdrop-blur-sm mb-6 sm:mb-8">
@@ -139,7 +139,7 @@ export function Landing() {
             {...fadeUp(0.15)}
             className="mt-5 sm:mt-7 text-base sm:text-lg md:text-xl text-primary/90 font-medium max-w-2xl mx-auto leading-relaxed"
           >
-            While 90% of AI agents are free and stay invisible, ClawKit makes yours discoverable, trusted, and used across every major agent runtime.
+            While 90% of AI agents are free and stay invisible, Invokex makes yours discoverable, trusted, and used across every major agent runtime.
           </motion.p>
 
           <motion.p
@@ -287,7 +287,7 @@ export function Landing() {
               },
               {
                 icon: Sparkles,
-                headline: "ClawKit gives you the edge",
+                headline: "Invokex gives you the edge",
                 body: "Instant trust via Safety Auditor. Cross-platform reach. Real simulation data. Your agent gets discovered — not buried.",
                 accent: "text-primary",
                 accentBg: "bg-primary/[0.08] border-primary/[0.15]",
@@ -377,7 +377,7 @@ export function Landing() {
       <section className="relative z-10 py-20 sm:py-28 border-t border-white/[0.04]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div {...fadeUp()}>
-            <ClawKitLogo size="lg" showText={false} className="justify-center mb-6" />
+            <InvokexLogo size="lg" showText={false} className="justify-center mb-6" />
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-white tracking-tight mb-4">
               Ready to be discovered?
             </h2>

@@ -1,8 +1,8 @@
-# ClawKit — AI Agent Distribution Platform
+# Invokex — AI Agent Distribution Platform
 
 ## Overview
 
-ClawKit is a production-grade SaaS platform for distributing AI agents and developer tools in 2026. It's the open distribution layer for developer tools and coding agents. Tagline: "One upload. Invoked everywhere."
+Invokex is a production-grade SaaS platform for distributing AI agents and developer tools in 2026. It's the open distribution layer for developer tools and coding agents. Tagline: "One upload. Invoked everywhere."
 
 ## Stack
 
@@ -16,8 +16,8 @@ ClawKit is a production-grade SaaS platform for distributing AI agents and devel
 - **Validation**: Zod (zod/v4), drizzle-zod
 - **API codegen**: Orval (from OpenAPI spec)
 - **UI**: shadcn/ui, Tailwind, framer-motion, recharts
-- **Auth**: Custom session token auth (HMAC-SHA256, stored in localStorage)
-- **Payments**: Paystack integration (test mode) — Growth $99/mo, Scale $299/mo
+- **Auth**: Custom session token auth (HMAC-SHA256, stored in localStorage as `invokex_token`)
+- **Payments**: Paystack direct payment links — Growth $99/mo (`https://paystack.shop/pay/eees4kq6g7`), Scale $299/mo (`https://paystack.shop/pay/8g8--6-gkk`)
 
 ## Structure
 
@@ -38,12 +38,12 @@ artifacts-monorepo/
 ## Features
 
 ### Public Landing Page (/)
-- Custom ClawKitLogo SVG component (claw icon + gradient "Claw"/"Kit" text, unique SVG IDs via useId)
+- Custom InvokexLogo SVG component (wave/signal icon + gradient "Invoke"+"x" text with neon glow, unique SVG IDs via useId)
 - Sticky nav: logo left, Pricing/Sign In/Get Started right (hamburger on mobile)
 - Hero: centered logo, headline "One upload. Invoked everywhere.", blue neon subheadline, email waitlist + "Get Started Free" CTA
 - Trust bar: MCP, CLI, REST API, Moltbook & OpenClaw, No lock-in
 - How It Works: 4 step cards (Upload, MCP Kit, Simulate, Export)
-- Value Proposition: 3 columns — market flood, invisibility problem, ClawKit edge
+- Value Proposition: 3 columns — market flood, invisibility problem, Invokex edge
 - Features Grid: 2x2 — Safety Auditor, Cross-platform, Analytics, Export Forever
 - Bottom CTA: "Ready to be discovered?" + email waitlist
 - Fully responsive mobile-first with framer-motion scroll animations
@@ -55,7 +55,7 @@ artifacts-monorepo/
 
 ### Products (/dashboard/products)
 - Upload form: name, description, API spec file, website URL
-- "Generate ClawKit" button — generates:
+- "Generate Invokex" button — generates:
   1. Full 2026 MCP manifest JSON
   2. AGENTS.md for ChatGPT/Claude/Grok
   3. ChatGPT Apps submission text
@@ -71,7 +71,7 @@ artifacts-monorepo/
 
 ### Pricing (/pricing) — Public
 - Free ($0), Growth ($99/mo), Scale ($299/mo)
-- Paystack checkout integration (test mode, loaded via useEffect)
+- Paystack direct payment links (Growth: `https://paystack.shop/pay/eees4kq6g7`, Scale: `https://paystack.shop/pay/8g8--6-gkk`)
 - 14-day free trial note
 - Mobile: stacked cards; Desktop: 3-col grid with Growth card scale-105
 
@@ -97,7 +97,7 @@ artifacts-monorepo/
 - `GET /api/auth/me` — current user
 - `POST /api/auth/logout` — logout
 - `GET/POST /api/products` — list/create products
-- `POST /api/products/:id/generate` — generate ClawKit artifacts
+- `POST /api/products/:id/generate` — generate Invokex artifacts
 - `POST /api/products/:id/simulate` — simulate distribution
 - `GET /api/products/:id/export` — export product data
 - `GET /api/analytics/dashboard` — dashboard stats
@@ -109,15 +109,16 @@ artifacts-monorepo/
 
 ## Auth
 
-Custom HMAC-SHA256 session tokens. Token stored in localStorage, sent as Authorization: Bearer header. Cookie also set for server-side sessions.
+Custom HMAC-SHA256 session tokens. Token stored in localStorage as `invokex_token`, sent as Authorization: Bearer header. Cookie also set for server-side sessions.
 
 ## Environment Variables
 
 - `DATABASE_URL` — PostgreSQL connection string (provisioned by Replit)
 - `SESSION_SECRET` — Secret for HMAC signing
-- `VITE_PAYSTACK_PUBLIC_KEY` — Paystack public key (test: pk_test_...)
 
-## Paystack Setup
+## Branding
 
-Set `VITE_PAYSTACK_PUBLIC_KEY` in secrets to your Paystack test public key.
-After payment success, frontend calls POST /api/subscriptions/upgrade with the Paystack reference.
+- Product name: **Invokex** (formerly ClawKit)
+- Logo: InvokexLogo component at `artifacts/clawkit/src/components/InvokexLogo.tsx`
+- Colors: Neon blue gradient (#00C3FF → #00D4FF → #0090CC), white text on dark background
+- The artifact directory is still named `clawkit` for compatibility; the brand is Invokex everywhere user-facing

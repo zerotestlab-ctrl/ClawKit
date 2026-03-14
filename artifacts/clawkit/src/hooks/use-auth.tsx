@@ -39,10 +39,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loginMutation = useLogin({
     mutation: {
       onSuccess: (data: any) => {
-        if (data?.token) localStorage.setItem("clawkit_token", data.token);
+        if (data?.token) localStorage.setItem("invokex_token", data.token);
         queryClient.invalidateQueries({ queryKey: getGetCurrentUserQueryKey() });
         setLocation("/dashboard");
-        toast({ title: "Welcome back", description: "Successfully logged in to ClawKit." });
+        toast({ title: "Welcome back", description: "Successfully logged in to Invokex." });
       },
       onError: (error: any) => {
         toast({ variant: "destructive", title: "Login failed", description: error.message || "Invalid credentials" });
@@ -53,10 +53,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const registerMutation = useRegister({
     mutation: {
       onSuccess: (data: any) => {
-        if (data?.token) localStorage.setItem("clawkit_token", data.token);
+        if (data?.token) localStorage.setItem("invokex_token", data.token);
         queryClient.invalidateQueries({ queryKey: getGetCurrentUserQueryKey() });
         setLocation("/dashboard");
-        toast({ title: "Account created", description: "Welcome to ClawKit!" });
+        toast({ title: "Account created", description: "Welcome to Invokex!" });
       },
       onError: (error: any) => {
         toast({ variant: "destructive", title: "Registration failed", description: error.message || "Email may be taken" });
@@ -67,14 +67,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logoutMutation = useLogout({
     mutation: {
       onSuccess: () => {
-        localStorage.removeItem("clawkit_token");
+        localStorage.removeItem("invokex_token");
         queryClient.clear();
         setLocation("/");
         toast({ title: "Logged out", description: "You have been logged out successfully." });
         window.location.href = "/";
       },
       onSettled: () => {
-        localStorage.removeItem("clawkit_token");
+        localStorage.removeItem("invokex_token");
         queryClient.setQueryData(getGetCurrentUserQueryKey(), null);
       }
     }

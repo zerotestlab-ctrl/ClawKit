@@ -1,7 +1,7 @@
 import { type Request, type Response, type NextFunction } from "express";
 import crypto from "crypto";
 
-const SESSION_SECRET = process.env.SESSION_SECRET || "clawkit-secret-key";
+const SESSION_SECRET = process.env.SESSION_SECRET || "invokex-secret-key";
 
 export function hashPassword(password: string): string {
   return crypto.createHmac("sha256", SESSION_SECRET).update(password).digest("hex");

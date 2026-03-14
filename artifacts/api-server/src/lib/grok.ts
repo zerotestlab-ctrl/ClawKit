@@ -59,7 +59,7 @@ export async function runSafetyAuditWithGrok(
   productDescription: string,
   apiSpec: string | null
 ): Promise<GrokSafetyResult> {
-  const systemPrompt = `You are ClawKit's Safety Auditor. Analyze the provided product/agent for security and compliance risks.
+  const systemPrompt = `You are Invokex's Safety Auditor. Analyze the provided product/agent for security and compliance risks.
 
 Your task: Return a JSON object ONLY, no other text. Use this exact structure:
 {

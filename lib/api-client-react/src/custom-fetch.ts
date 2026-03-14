@@ -299,7 +299,7 @@ export async function customFetch<T = unknown>(
 
   const requestInfo = { method, url: resolveUrl(input) };
 
-  const token = typeof localStorage !== "undefined" ? localStorage.getItem("clawkit_token") : null;
+  const token = typeof localStorage !== "undefined" ? localStorage.getItem("invokex_token") : null;
   if (token && !headers.has("authorization")) {
     headers.set("authorization", `Bearer ${token}`);
   }

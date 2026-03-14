@@ -86,7 +86,7 @@ export function Settings() {
                 </Badge>
               </div>
               <p className="text-sm text-muted-foreground mt-2">
-                {subscription?.plan === 'free' ? "Basic agent distribution features." : "Full ClawKit distribution power enabled."}
+                {subscription?.plan === 'free' ? "Basic agent distribution features." : "Full Invokex distribution power enabled."}
               </p>
             </div>
             <div className="mt-4 md:mt-0 flex gap-3">
@@ -143,7 +143,7 @@ export function Settings() {
       <Card className="bg-card/40 border-white/10 backdrop-blur-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-xl"><Bell className="w-5 h-5 text-primary" /> Notifications</CardTitle>
-          <CardDescription>Control how ClawKit contacts you.</CardDescription>
+          <CardDescription>Control how Invokex contacts you.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between p-4 rounded-lg bg-black/20 border border-white/5">

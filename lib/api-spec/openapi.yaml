@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: Api
   version: 0.1.0
-  description: ClawKit API specification
+  description: Invokex API specification
 servers:
   - url: /api
     description: Base API path
@@ -16,7 +16,7 @@ tags:
   - name: products
     description: Product management
   - name: clawkit
-    description: ClawKit generation
+    description: Invokex generation
   - name: analytics
     description: Analytics
   - name: subscriptions
@@ -232,7 +232,7 @@ paths:
     post:
       operationId: generateClawKit
       tags: [clawkit]
-      summary: Generate ClawKit artifacts for a product
+      summary: Generate Invokex artifacts for a product
       parameters:
         - name: id
           in: path
@@ -241,7 +241,7 @@ paths:
             type: string
       responses:
         "200":
-          description: ClawKit generated
+          description: Invokex generated
           content:
             application/json:
               schema:

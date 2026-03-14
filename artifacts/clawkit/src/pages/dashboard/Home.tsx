@@ -36,7 +36,7 @@ const howItWorks = [
     step: "01",
     title: "Upload once",
     description:
-      "Drop your OpenAPI spec or describe your coding agent. ClawKit ingests it in seconds — no reformat needed.",
+      "Drop your OpenAPI spec or describe your coding agent. Invokex ingests it in seconds — no reformat needed.",
     color: "text-primary",
     bg: "bg-primary/10 border-primary/20",
   },
@@ -63,7 +63,7 @@ const howItWorks = [
     step: "04",
     title: "Export or auto-distribute",
     description:
-      "Download everything forever with one click, or let ClawKit push your agent to every runtime automatically.",
+      "Download everything forever with one click, or let Invokex push your agent to every runtime automatically.",
     color: "text-amber-400",
     bg: "bg-amber-500/10 border-amber-500/20",
   },
@@ -104,7 +104,7 @@ export function DashboardHome() {
             </span>
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground max-w-2xl leading-relaxed mb-6">
-            While 90% of agents are free and stay invisible, ClawKit makes yours{" "}
+            While 90% of agents are free and stay invisible, Invokex makes yours{" "}
             <span className="text-white font-medium">discoverable, trusted, and invoked</span> across
             ChatGPT, Claude, Grok, Moltbook, OpenClaw and every runtime. One upload. Invoked everywhere.
           </p>
@@ -145,7 +145,7 @@ export function DashboardHome() {
             value: analyticsLoading ? "—" : String(analytics?.totalProducts || 0),
             icon: Package,
             iconColor: "text-violet-400",
-            sub: "distributed via ClawKit",
+            sub: "distributed via Invokex",
           },
         ].map((stat) => (
           <Card
@@ -166,11 +166,11 @@ export function DashboardHome() {
         ))}
       </motion.div>
 
-      {/* ─── How ClawKit Works ─── */}
+      {/* ─── How Invokex Works ─── */}
       <motion.div variants={fadeUp}>
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">How ClawKit Works</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">How Invokex Works</h2>
             <p className="text-sm text-muted-foreground mt-0.5">Four steps from upload to everywhere.</p>
           </div>
         </div>
@@ -252,7 +252,7 @@ export function DashboardHome() {
             </div>
             <h3 className="text-lg font-semibold text-white mb-2">No agents distributed yet</h3>
             <p className="text-sm text-muted-foreground max-w-xs mx-auto mb-5">
-              Upload your first tool or coding agent to generate your complete ClawKit distribution package.
+              Upload your first tool or coding agent to generate your complete Invokex distribution package.
             </p>
             <Link href="/dashboard/products">
               <Button className="gap-2 shadow-lg shadow-primary/15">

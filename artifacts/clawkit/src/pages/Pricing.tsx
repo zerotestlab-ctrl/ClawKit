@@ -89,7 +89,7 @@ export function Pricing() {
                 <ul className="space-y-3 sm:space-y-4 text-sm">
                   {[
                     "Unlimited products",
-                    "Full ClawKit Generator (MCP + Moltbook/OpenClaw)",
+                    "Full Invokex Generator (MCP + Moltbook/OpenClaw)",
                     "Real Safety Auditor + PDF report",
                     "True Simulate Distribution",
                     "Full analytics + Export All My Data Forever",

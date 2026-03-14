@@ -12,6 +12,7 @@ import {
   runSafetyAudit,
   generateSafetyReport,
 } from "../lib/clawkit-generator.js";
+// Note: the import path above uses the original filename; the file is kept for compatibility
 import { runSafetyAuditWithGrok, generateSimulationInvocations } from "../lib/grok.js";
 import { generateSafetyReportPdf } from "../lib/pdf.js";
 
@@ -257,7 +258,7 @@ router.get("/:id/safety-pdf", async (req: Request, res: Response) => {
     }
     const pdfBuffer = generateSafetyReportPdf(product.name, product.safetyReport);
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename="clawkit-safety-${product.name.replace(/\s+/g, "-").toLowerCase()}.pdf"`);
+    res.setHeader("Content-Disposition", `attachment; filename="invokex-safety-${product.name.replace(/\s+/g, "-").toLowerCase()}.pdf"`);
     res.send(pdfBuffer);
   } catch (err) {
     res.status(500).json({ error: "Internal server error" });
@@ -285,7 +286,7 @@ function buildFallbackInvocations(product: { name: string }, productId: string, 
     agentName: agentNames[platform] || "AI Agent",
     timestamp: new Date(Date.now() - i * 3600000).toISOString(),
     query: queries[i % queries.length],
-    response: `Successfully invoked ${product.name} via ClawKit MCP bridge. Retrieved structured data and executed the requested operation. ClawKit safety layer verified request integrity. Response time: ${Math.floor(Math.random() * 500 + 100)}ms.`,
+    response: `Successfully invoked ${product.name} via Invokex MCP bridge. Retrieved structured data and executed the requested operation. Invokex safety layer verified request integrity. Response time: ${Math.floor(Math.random() * 500 + 100)}ms.`,
     revenueImpact: parseFloat((Math.random() * 2.5 + 0.5).toFixed(2)),
   }));
 }
@@ -300,11 +301,11 @@ router.get("/:id/safety-pdf", async (req: Request, res: Response) => {
       return;
     }
     if (!product.safetyReport) {
-      res.status(404).json({ error: "Not found", message: "ClawKit not generated yet. Run Generate ClawKit first." });
+      res.status(404).json({ error: "Not found", message: "Invokex not generated yet. Run Generate Invokex first." });
       return;
     }
     const pdf = generateSafetyReportPdf(product.name, product.safetyReport);
-    const filename = `clawkit-safety-${product.name.replace(/\s+/g, "-").toLowerCase()}.pdf`;
+    const filename = `invokex-safety-${product.name.replace(/\s+/g, "-").toLowerCase()}.pdf`;
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
     res.send(pdf);
@@ -313,140 +314,6 @@ router.get("/:id/safety-pdf", async (req: Request, res: Response) => {
   }
 });
 
-router.get("/:id/safety-pdf", async (req: Request, res: Response) => {
-  try {
-    const userId = (req as any).userId;
-    const id = paramId(req);
-    const [product] = await db.select().from(productsTable).where(and(eq(productsTable.id, id), eq(productsTable.userId, userId)));
-    if (!product || !product.safetyReport) {
-      res.status(404).json({ error: "Not found", message: "Product or safety report not found" });
-      return;
-    }
-    const pdfBuffer = generateSafetyReportPdf(product.name, product.safetyReport);
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename="clawkit-safety-${product.name.replace(/\s+/g, "-").toLowerCase()}.pdf"`);
-    res.send(pdfBuffer);
-  } catch (err) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-router.get("/:id/safety-pdf", async (req: Request, res: Response) => {
-  try {
-    const userId = (req as any).userId;
-    const id = paramId(req);
-    const [product] = await db.select().from(productsTable).where(and(eq(productsTable.id, id), eq(productsTable.userId, userId)));
-    if (!product) {
-      res.status(404).json({ error: "Not found", message: "Product not found" });
-      return;
-    }
-    if (!product.safetyReport) {
-      res.status(404).json({ error: "Not found", message: "Safety report not yet generated" });
-      return;
-    }
-    const pdfBuf = generateSafetyReportPdf(product.name, product.safetyReport);
-    const filename = `clawkit-safety-${product.name.replace(/\s+/g, "-").toLowerCase()}.pdf`;
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
-    res.send(pdfBuf);
-  } catch (err) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-router.get("/:id/safety-pdf", async (req: Request, res: Response) => {
-  try {
-    const userId = (req as any).userId;
-    const id = paramId(req);
-    const [product] = await db.select().from(productsTable).where(and(eq(productsTable.id, id), eq(productsTable.userId, userId)));
-    if (!product || !product.safetyReport) {
-      res.status(404).json({ error: "Not found", message: "Product or safety report not found" });
-      return;
-    }
-    const pdfBuffer = generateSafetyReportPdf(product.name, product.safetyReport);
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename="clawkit-safety-${product.name.replace(/\s+/g, "-").toLowerCase()}.pdf"`);
-    res.send(pdfBuffer);
-  } catch (err) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-router.get("/:id/safety-pdf", async (req: Request, res: Response) => {
-  try {
-    const userId = (req as any).userId;
-    const id = paramId(req);
-    const [product] = await db.select().from(productsTable).where(and(eq(productsTable.id, id), eq(productsTable.userId, userId)));
-    if (!product || !product.safetyReport) {
-      res.status(404).json({ error: "Not found", message: "Product or safety report not found" });
-      return;
-    }
-    const pdfBuffer = generateSafetyReportPdf(product.name, product.safetyReport);
-    const filename = `clawkit-safety-${product.name.replace(/\s+/g, "-").toLowerCase()}.pdf`;
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
-    res.send(pdfBuffer);
-  } catch (err) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-router.get("/:id/safety-pdf", async (req: Request, res: Response) => {
-  try {
-    const userId = (req as any).userId;
-    const id = paramId(req);
-    const [product] = await db.select().from(productsTable).where(and(eq(productsTable.id, id), eq(productsTable.userId, userId)));
-    if (!product || !product.safetyReport) {
-      res.status(404).json({ error: "Not found", message: "Product or safety report not found" });
-      return;
-    }
-    const pdf = generateSafetyReportPdf(product.name, product.safetyReport);
-    const filename = `clawkit-safety-${product.name.replace(/\s+/g, "-").toLowerCase()}.pdf`;
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
-    res.send(Buffer.from(pdf));
-  } catch (err) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-router.get("/:id/safety-pdf", async (req: Request, res: Response) => {
-  try {
-    const userId = (req as any).userId;
-    const id = paramId(req);
-    const [product] = await db.select().from(productsTable).where(and(eq(productsTable.id, id), eq(productsTable.userId, userId)));
-    if (!product || !product.safetyReport) {
-      res.status(404).json({ error: "Not found", message: "Product or safety report not found" });
-      return;
-    }
-    const pdfBuffer = generateSafetyReportPdf(product.name, product.safetyReport);
-    const filename = `clawkit-safety-${product.name.replace(/\s+/g, "-").toLowerCase()}.pdf`;
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
-    res.send(Buffer.from(pdfBuffer));
-  } catch (err) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-router.get("/:id/safety-pdf", async (req: Request, res: Response) => {
-  try {
-    const userId = (req as any).userId;
-    const id = paramId(req);
-    const [product] = await db.select().from(productsTable).where(and(eq(productsTable.id, id), eq(productsTable.userId, userId)));
-    if (!product || !product.safetyReport) {
-      res.status(404).json({ error: "Not found", message: "Product or safety report not found" });
-      return;
-    }
-    const pdf = generateSafetyReportPdf(product.name, product.safetyReport);
-    const filename = `clawkit-safety-${product.name.replace(/\s+/g, "-").toLowerCase()}.pdf`;
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
-    res.send(pdf);
-  } catch (err) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
 
 router.get("/:id/export", async (req: Request, res: Response) => {
   try {

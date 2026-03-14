@@ -40,7 +40,7 @@ export function Register() {
       <Card className="w-full max-w-md bg-card/60 backdrop-blur-xl border-white/10 shadow-2xl z-10">
         <CardHeader>
           <CardTitle>Sign Up</CardTitle>
-          <CardDescription>Join ClawKit to start distributing your AI tools.</CardDescription>
+          <CardDescription>Join Invokex to start distributing your AI tools.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">

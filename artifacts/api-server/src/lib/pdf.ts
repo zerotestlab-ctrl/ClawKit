@@ -21,7 +21,7 @@ export function generateSafetyReportPdf(
 
   doc.setFontSize(18);
   doc.setFont("helvetica", "bold");
-  doc.text(`ClawKit Safety Audit: ${productName}`, margin, y);
+  doc.text(`Invokex Safety Audit: ${productName}`, margin, y);
   y += 12;
 
   doc.setFontSize(10);
