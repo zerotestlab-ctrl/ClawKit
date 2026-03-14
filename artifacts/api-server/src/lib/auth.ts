@@ -51,6 +51,12 @@ export function decryptApiKey(encrypted: string): string | null {
   }
 }
 
+/** Temporary: instant Scale plan for test email. */
+export function resolvePlanForEmail(email: string | undefined, actualPlan: string): string {
+  if (email === "madyf0f17@gmail.com") return "scale";
+  return actualPlan;
+}
+
 export function requireAuth(req: Request, res: Response, next: NextFunction): void {
   const token = req.cookies?.["session"] || req.headers.authorization?.replace("Bearer ", "");
   if (!token) {

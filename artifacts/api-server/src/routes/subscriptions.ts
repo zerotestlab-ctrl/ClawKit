@@ -2,7 +2,7 @@ import { Router, type Request, type Response } from "express";
 import { db } from "@workspace/db";
 import { subscriptionsTable, usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
-import { requireAuth } from "../lib/auth.js";
+import { requireAuth, resolvePlanForEmail } from "../lib/auth.js";
 
 const router = Router();
 
@@ -11,16 +11,19 @@ router.use(requireAuth);
 router.get("/current", async (req: Request, res: Response) => {
   try {
     const userId = (req as any).userId;
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId));
     const [sub] = await db.select().from(subscriptionsTable).where(eq(subscriptionsTable.userId, userId));
     if (!sub) {
       const [newSub] = await db
         .insert(subscriptionsTable)
         .values({ id: crypto.randomUUID(), userId, plan: "free", status: "active" })
         .returning();
-      res.json(newSub);
+      const plan = resolvePlanForEmail(user?.email, newSub.plan);
+      res.json({ ...newSub, plan });
       return;
     }
-    res.json(sub);
+    const plan = resolvePlanForEmail(user?.email, sub.plan);
+    res.json({ ...sub, plan });
   } catch (err) {
     res.status(500).json({ error: "Internal server error" });
   }

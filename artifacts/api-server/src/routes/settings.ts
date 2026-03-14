@@ -2,7 +2,7 @@ import { Router, type Request, type Response } from "express";
 import { db } from "@workspace/db";
 import { userSettingsTable, usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
-import { requireAuth, encryptApiKey } from "../lib/auth.js";
+import { requireAuth, encryptApiKey, resolvePlanForEmail } from "../lib/auth.js";
 
 const router = Router();
 
@@ -22,7 +22,7 @@ router.get("/", async (req: Request, res: Response) => {
         userId,
         grokApiKeySet: false,
         emailNotifications: newSettings.emailNotifications,
-        plan: user?.plan || "free",
+        plan: resolvePlanForEmail(user?.email, user?.plan || "free"),
       });
       return;
     }
@@ -30,7 +30,7 @@ router.get("/", async (req: Request, res: Response) => {
       userId,
       grokApiKeySet: !!settings.grokApiKeyEncrypted,
       emailNotifications: settings.emailNotifications,
-      plan: user?.plan || "free",
+      plan: resolvePlanForEmail(user?.email, user?.plan || "free"),
     });
   } catch (err) {
     res.status(500).json({ error: "Internal server error" });
@@ -66,7 +66,7 @@ router.put("/", async (req: Request, res: Response) => {
       userId,
       grokApiKeySet: !!settings.grokApiKeyEncrypted,
       emailNotifications: settings.emailNotifications,
-      plan: user?.plan || "free",
+      plan: resolvePlanForEmail(user?.email, user?.plan || "free"),
     });
   } catch (err) {
     res.status(500).json({ error: "Internal server error" });
