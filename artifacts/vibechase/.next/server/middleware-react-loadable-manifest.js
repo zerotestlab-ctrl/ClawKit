@@ -1,0 +1,1 @@
+self.__REACT_LOADABLE_MANIFEST='{"components/chase-card.tsx -> qrcode":{"id":996,"files":["static/chunks/996.4c138926797dea4a.js"]}}';
