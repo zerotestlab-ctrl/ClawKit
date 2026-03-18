@@ -20,6 +20,7 @@ import {
   DollarSign,
 } from "lucide-react";
 import { triggerConfetti } from "@/components/confetti-trigger";
+import { TimingBadge } from "@/components/timing-badge";
 import type { Chase, Invoice } from "@/lib/types";
 
 const statusColors: Record<string, "success" | "info" | "warning" | "outline" | "destructive"> = {
@@ -125,12 +126,17 @@ export function ChaseCard({ chase }: ChaseCardProps) {
                 </span>
               )}
             </div>
-            {chase.sent_at && (
-              <span className="text-xs text-muted-foreground flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                {new Date(chase.sent_at).toLocaleDateString()}
-              </span>
-            )}
+            <div className="flex items-center gap-2">
+              {chase.status === "draft" && chase.step === 1 && (
+                <TimingBadge invoiceId={chase.invoice_id} />
+              )}
+              {chase.sent_at && (
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  {new Date(chase.sent_at).toLocaleDateString()}
+                </span>
+              )}
+            </div>
           </div>
 
           <div className="bg-muted/50 rounded-lg p-3 mb-3 text-sm leading-relaxed whitespace-pre-wrap">
